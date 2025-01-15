@@ -1,24 +1,43 @@
-import { NextRequest, NextResponse } from 'next/server';
-import {supabase} from '@/lib/supabase'
+// app/api/auth/check-session/route.ts
 
-export default function CheckSession(){
-const getSession = async () => {
+import { NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+export async function GET() {
+    try {
+        // Retrieve session data from Supabase
+        const { data: session, error } = await supabase.auth.getSession();
 
-  if (!session) {
-    return NextResponse.json(
-      { message: 'Session not active' },
-      { status: 401 }
-    );
-  }
-  console.log(session)
+        if (error || !session) {
+            return NextResponse.json({
+                status: 401,
+                message: 'No valid session found',
+                session: null,
+            }, { status: 401 });
+        }
 
-  return NextResponse.json(
-    { session, message: 'Session active' },
-    { status: 200 }
-  );
-}
+        // If session exists, return it with success status
+        return NextResponse.json({
+            status: 200,
+            message: 'Session is valid',
+            session: session,
+        }, { status: 200 });
+    } catch (error: unknown) {
+        console.error('Error during session check:', error);
+
+        if (error instanceof Error) {
+            return NextResponse.json({
+                status: 500,
+                message: 'Server error during session check',
+                session: null,
+                error: error.message,
+            }, { status: 500 });
+        }
+
+        return NextResponse.json({
+            status: 500,
+            message: 'An unknown error occurred during session check',
+            session: null,
+        }, { status: 500 });
+    }
 }

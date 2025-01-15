@@ -54,20 +54,43 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { checkSession } from '@/lib/session';
+
 
 export async function POST(req: NextRequest) {
-  const { email, password } = await req.json();
-  if (!email || !password) {
-    return NextResponse.json({ message: 'Email and password are required' }, { status: 400 });
-  }
+  try {
+    const { email, password } = await req.json();
+    if (!email || !password) {
+      return NextResponse.json({ message: 'Email and password are required' }, { status: 400 });
+    }
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) {
-    return NextResponse.json({ message: 'Invalid credentials', error: error.message }, { status: 401 });
-  }
+    // Attempt to sign in the user
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      return NextResponse.json({ message: 'Invalid credentials', error: error.message }, { status: 401 });
+    }
 
-return NextResponse.json({
-  message: 'Login successful',
-  user: data.user,
-  session: data.session
-}, { status: 200 });}
+    // Check if the session is active
+    const sessionCheck = await checkSession();
+    if (sessionCheck.status !== 200) {
+      return NextResponse.json(
+        { message: sessionCheck.message, error: sessionCheck.error },
+        { status: sessionCheck.status }
+      );
+    }
+
+    // Return login success with user and session info
+    return NextResponse.json({
+      message: 'Login successful',
+      user: data.user,
+      session: sessionCheck.session, // Use the verified session
+    }, { status: 200 });
+  } catch (error: unknown) {
+    let errorMessage = 'An unexpected error occurred';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    console.error('Error in POST /api/login:', error);
+    return NextResponse.json({ message: errorMessage }, { status: 500 });
+  }
+}
