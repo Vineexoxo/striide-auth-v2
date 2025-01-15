@@ -66,8 +66,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'Invalid credentials', error: error.message }, { status: 401 });
   }
 
-  return NextResponse.json({
-    message: 'Login successful',
-    user: data.user,
-    session: data.session
-  }, { status: 200 });}
+return NextResponse.json({
+  message: 'Login successful',
+  user: data.user,
+  session: data.session
+}, { status: 200 });}

@@ -69,9 +69,92 @@ import { cookies } from 'next/headers';
  *                   example: User already exists
  */
 
+// export async function POST(req: NextRequest) {
+//   try {
+//     const { name, email, password } = await req.json();
+//     const url = new URL(req.url);
+
+//     // Validate input fields
+//     if (!email || !password) {
+//       return NextResponse.json(
+//         { message: 'Email and password are required' },
+//         { status: 400 }
+//       );
+//     }
+
+//     // Get cookies
+//     const cookieStore = cookies();
+    
+//     // Create Supabase client
+//     const supabase = createRouteHandlerClient({
+//       cookies: () => cookieStore,
+//     });
+
+//     if (!supabase) {
+//       console.error('Supabase client is not initialized.');
+//       return NextResponse.json(
+//         { message: 'Internal server error: Supabase client initialization failed.' },
+//         { status: 500 }
+//       );
+//     }
+
+//     // Step 1: Check if email already exists in the auth.users table
+//     const { data: existingUser, error: userCheckError } = await supabase
+//       .from('profile')
+//       .select('email')
+//       .eq('email', email)
+//       .single();
+
+//     if (userCheckError) {
+//       console.error('Error checking existing user:', userCheckError.message);
+//       return NextResponse.json(
+//         { message: 'Error checking user email.', error: userCheckError.message },
+//         { status: 500 }
+//       );
+//     }
+
+//     if (existingUser) {
+//       return NextResponse.json(
+//         { message: 'Email already exists. Please log in instead.' },
+//         { status: 409 }
+//       );
+//     }
+
+//     // Step 2: Call Supabase signup
+//     const { data, error } = await supabase.auth.signUp({
+//       email,
+//       password,
+//       options: {
+//         emailRedirectTo: `${url.origin}/auth/callback`,
+//       },
+//     });
+
+//     // Handle signup errors
+//     if (error) {
+//       console.error('Error during signup:', error.message);
+//       return NextResponse.json(
+//         { message: 'Signup failed. Invalid credentials or other error.', error: error.message },
+//         { status: 400 }
+//       );
+//     }
+
+//     // Step 3: Return success response
+//     return NextResponse.json({
+//       message: 'Signup successful. Please verify your email.',
+//       user: data.user,
+//       session: data.session,
+//     });
+//   } catch (err) {
+//     console.error('Unexpected error:', (err as Error).message);
+//     return NextResponse.json(
+//       { message: 'Internal server error', error: (err as Error).message },
+//       { status: 500 }
+//     );
+//   }
+// }
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password } = await req.json();
+    const { email, password } = await req.json();
     const url = new URL(req.url);
 
     // Validate input fields
@@ -84,7 +167,7 @@ export async function POST(req: NextRequest) {
 
     // Get cookies
     const cookieStore = cookies();
-    
+
     // Create Supabase client
     const supabase = createRouteHandlerClient({
       cookies: () => cookieStore,
@@ -98,14 +181,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Step 1: Check if email already exists in the auth.users table
+    // Step 1: Check if email already exists in the profile table
     const { data: existingUser, error: userCheckError } = await supabase
       .from('profile')
       .select('email')
       .eq('email', email)
-      .single();
+      .single();  // Use `.single()` to expect exactly one row or none
 
-    if (userCheckError) {
+    // Handle case where no user exists (no data returned)
+    if (userCheckError && userCheckError.code !== 'PGRST116') {  // 'PGRST116' is the code for no row found
       console.error('Error checking existing user:', userCheckError.message);
       return NextResponse.json(
         { message: 'Error checking user email.', error: userCheckError.message },
@@ -113,7 +197,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // If existingUser is not null, that means email already exists
     if (existingUser) {
+      console.log('User already exists with this email:', email);
       return NextResponse.json(
         { message: 'Email already exists. Please log in instead.' },
         { status: 409 }
