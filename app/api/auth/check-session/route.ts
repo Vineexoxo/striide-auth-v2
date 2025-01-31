@@ -6,21 +6,22 @@ import { supabase } from '@/lib/supabase';
 export async function GET() {
     try {
         // Retrieve session data from Supabase
-        const { data: session, error } = await supabase.auth.getSession();
+        const { data, error } = await supabase.auth.getSession();
 
-        if (error || !session) {
+        if (error || data.session === null) {
+            console.log('session doesnt exist')
             return NextResponse.json({
                 status: 401,
                 message: 'No valid session found',
                 session: null,
             }, { status: 401 });
         }
-
-        // If session exists, return it with success status
+        console.log('error =',error)
+        console.log('session = ',data.session)
         return NextResponse.json({
             status: 200,
             message: 'Session is valid',
-            session: session,
+            session: data.session,
         }, { status: 200 });
     } catch (error: unknown) {
         console.error('Error during session check:', error);

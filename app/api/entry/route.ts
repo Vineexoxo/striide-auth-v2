@@ -56,6 +56,9 @@ import { use } from 'react';
  *                   feed_type:
  *                     type: string
  *                     example: "Email_Newsletter"
+ *                   onboard:
+ *                     type: boolean
+ *                     example: true
  *     responses:
  *       200:
  *         description: Successfully updated user entry.
@@ -93,6 +96,7 @@ export async function POST(req: NextRequest) {
       commute_frequency: user_info.commute_frequency,
       travel_time: user_info.travel_time,
       feed_type: user_info.feed_type,
+      onboard: user_info.onboard
     })
     .eq('email', email); // Use email as the filter
     // Handle upsert errors

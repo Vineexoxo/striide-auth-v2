@@ -79,11 +79,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
+        // Fetch the 'onboard' field from the user's profile
+        const { data: userProfile, error: profileError } = await supabase
+        .from('profile')
+        .select('onboard')
+        .eq('email', email)
+        .single();
+  
+      if (profileError) {
+        return NextResponse.json({ message: 'Error fetching user profile', error: profileError.message }, { status: 500 });
+      }
+
+    
+
     // Return login success with user and session info
     return NextResponse.json({
+      onboard: userProfile?.onboard, // Add onboard field to the response
       message: 'Login successful',
       user: data.user,
       session: sessionCheck.session, // Use the verified session
+      
+
     }, { status: 200 });
   } catch (error: unknown) {
     let errorMessage = 'An unexpected error occurred';
