@@ -67,6 +67,9 @@ import { NextRequest, NextResponse } from "next/server";
  */
 import { checkSession } from '@/lib/session';
 
+export const dynamic = "force-dynamic"; // Add this line to force dynamic rendering
+
+
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
 
