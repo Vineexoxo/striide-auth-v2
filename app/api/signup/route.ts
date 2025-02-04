@@ -152,6 +152,9 @@ import { cookies } from 'next/headers';
 //     );
 //   }
 // }
+
+export const dynamic = "force-dynamic"; // Add this line to force dynamic rendering
+
 export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();

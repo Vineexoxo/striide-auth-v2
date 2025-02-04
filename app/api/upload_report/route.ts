@@ -38,6 +38,9 @@ import { supabase } from '@/lib/supabase';
  *         description: Internal server error.
  */
 
+export const dynamic = "force-dynamic"; // Add this line to force dynamic rendering
+
+
 export async function POST(req: NextRequest) {
   try {
     const { address, location, description, duration, is_published } = await req.json();

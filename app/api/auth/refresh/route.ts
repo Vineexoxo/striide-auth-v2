@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';  // Ensure supabase client is correctly imported
 
+export const dynamic = "force-dynamic"; // Add this line to force dynamic rendering
+
+
 // API handler to refresh the access token
 export async function POST(req: NextRequest) {
     try {

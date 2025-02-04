@@ -56,6 +56,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { checkSession } from '@/lib/session';
 
+export const dynamic = "force-dynamic"; // Add this line to force dynamic rendering
+
 
 export async function POST(req: NextRequest) {
   try {

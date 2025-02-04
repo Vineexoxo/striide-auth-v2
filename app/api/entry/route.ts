@@ -4,6 +4,9 @@ import { supabase } from '@/lib/supabase';
 // import { checkUser } from '@/utils/checkSession';
 import { use } from 'react';
 
+export const dynamic = "force-dynamic"; // Add this line to force dynamic rendering
+
+
 /**
  * @swagger
  * /api/entry:

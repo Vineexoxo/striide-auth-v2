@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+export const dynamic = "force-dynamic"; // Add this line to force dynamic rendering
+
+
 export async function POST(req: NextRequest) {
   try {
     const { id } = await req.json();
